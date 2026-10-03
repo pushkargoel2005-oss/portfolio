@@ -26,6 +26,66 @@ export default function App() {
     window.localStorage.setItem('portfolio-theme', theme)
   }, [theme])
 
+  // Offset-aware smooth scrolling for fixed header.
+  // Scroll to the section's heading (not the section top) so there is
+  // no large py-20 / divider whitespace above the title.
+  useEffect(() => {
+    const GAP = 16
+    const getHeaderOffset = () => {
+      const header = document.querySelector('header')
+      return (header?.offsetHeight ?? 64) + GAP
+    }
+    const prefersReduced = () =>
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const getTarget = (sectionEl) =>
+      sectionEl.querySelector('[data-section-heading]') || sectionEl.querySelector('h2') || sectionEl
+    const scrollToId = (id, smooth = true) => {
+      document.body.style.overflow = ''
+      const behavior = smooth && !prefersReduced() ? 'smooth' : 'auto'
+      if (id === 'home') {
+        window.scrollTo({ top: 0, behavior })
+        return
+      }
+      const el = document.getElementById(id)
+      if (!el) return
+      const target = getTarget(el)
+      const top = target.getBoundingClientRect().top + window.scrollY - getHeaderOffset()
+      window.scrollTo({ top: Math.max(0, top), behavior })
+    }
+
+    const onClick = (e) => {
+      const anchor = e.target.closest?.('a[href^="#"]')
+      if (!anchor) return
+      const href = anchor.getAttribute('href')
+      if (!href || href === '#') return
+      const id = href.slice(1)
+      if (!id || !document.getElementById(id)) return
+      e.preventDefault()
+      // Double rAF lets the mobile menu close + layout settle first.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          scrollToId(id, true)
+          window.history.pushState(null, '', `#${id}`)
+        })
+      )
+    }
+    document.addEventListener('click', onClick)
+
+    // Deep-link / refresh with a hash + back-forward navigation.
+    const scrollFromHash = () => {
+      const id = window.location.hash.slice(1)
+      if (!id) return
+      if (!document.getElementById(id)) return
+      setTimeout(() => scrollToId(id, true), 80)
+    }
+    scrollFromHash()
+    window.addEventListener('hashchange', scrollFromHash)
+    return () => {
+      document.removeEventListener('click', onClick)
+      window.removeEventListener('hashchange', scrollFromHash)
+    }
+  }, [])
+
   return (
     <MotionConfig reducedMotion="user">
       <a href="#home" className="skip-link">

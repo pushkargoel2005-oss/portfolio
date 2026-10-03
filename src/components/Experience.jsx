@@ -1,4 +1,5 @@
 import { GraduationCap, FolderGit2, Briefcase } from 'lucide-react'
+import { motion } from 'framer-motion'
 import SectionHeading from './SectionHeading.jsx'
 import Reveal from './Reveal.jsx'
 import { experience } from '../data/portfolio.js'
@@ -11,7 +12,7 @@ const typeStyle = {
 
 export default function Experience() {
   return (
-    <section id="experience" aria-label="Experience and education" className="scroll-mt-20 py-20 sm:py-28">
+    <section id="experience" aria-label="Experience and education" className="scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto px-5 sm:px-8" style={{ maxWidth: '1280px' }}>
         <div className="section-divider mb-14" aria-hidden="true" />
         <SectionHeading
@@ -21,23 +22,37 @@ export default function Experience() {
         />
 
         <div className="relative mx-auto mt-12 max-w-3xl">
-          <div className="absolute bottom-2 left-[19px] top-2 w-px sm:left-[23px]" style={{ background: 'var(--line-strong)' }} aria-hidden="true" />
+          <motion.div
+            initial={{ scaleY: 0 }}
+            whileInView={{ scaleY: 1 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute bottom-2 left-[19px] top-2 w-px origin-top sm:left-[23px]"
+            style={{ background: 'linear-gradient(to bottom, var(--accent), var(--accent-2), var(--line-strong))' }}
+            aria-hidden="true"
+          />
           <ol className="space-y-6">
             {experience.map((item, idx) => {
               const s = typeStyle[item.type] || typeStyle.project
               const Icon = s.icon
               return (
                 <Reveal key={item.title + idx} delay={idx * 0.06}>
-                  <li
-                    className="relative rounded-2xl border p-6 pl-14 sm:p-7 sm:pl-16"
+                  <motion.li
+                    whileHover={{ y: -3 }}
+                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    className="hover-lift relative rounded-2xl border p-6 pl-14 sm:p-7 sm:pl-16"
                     style={{ background: 'var(--surface)', borderColor: 'var(--line)' }}
                   >
-                    <span
+                    <motion.span
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      whileInView={{ scale: 1, opacity: 1 }}
+                      viewport={{ once: true, margin: '-60px' }}
+                      transition={{ type: 'spring', stiffness: 320, damping: 20, delay: idx * 0.06 }}
                       className="absolute left-4 top-6 flex h-10 w-10 items-center justify-center rounded-xl border sm:left-4"
                       style={{ background: s.bg, color: s.color, borderColor: 'var(--line)' }}
                     >
                       <Icon size={18} />
-                    </span>
+                    </motion.span>
                     {item.placeholder && (
                       <span className="mb-3 inline-flex rounded-full border border-dashed px-3 py-1 font-mono text-[11px]" style={{ borderColor: 'var(--line-strong)', color: 'var(--muted-2)' }}>
                         PLACEHOLDER — replace when you have real experience
@@ -65,7 +80,7 @@ export default function Experience() {
                         </li>
                       ))}
                     </ul>
-                  </li>
+                  </motion.li>
                 </Reveal>
               )
             })}

@@ -77,7 +77,7 @@ export default function Projects() {
   const visible = projects.filter((p) => filter === 'All' || p.category === filter)
 
   return (
-    <section id="projects" aria-label="Featured projects" className="scroll-mt-20 py-20 sm:py-28">
+    <section id="projects" aria-label="Featured projects" className="scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto px-5 sm:px-8" style={{ maxWidth: '1280px' }}>
         <div className="section-divider mb-14" aria-hidden="true" />
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -88,22 +88,34 @@ export default function Projects() {
           />
           <Reveal delay={0.1}>
             <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter projects by category">
-              {projectFilters.map((f) => (
-                <button
-                  key={f}
-                  role="tab"
-                  aria-selected={filter === f}
-                  onClick={() => setFilter(f)}
-                  className="rounded-full border px-4 py-2 text-[13px] font-medium transition-all"
-                  style={{
-                    borderColor: filter === f ? 'var(--accent)' : 'var(--line)',
-                    background: filter === f ? 'rgba(139,124,255,0.14)' : 'var(--surface)',
-                    color: filter === f ? 'var(--text)' : 'var(--muted)'
-                  }}
-                >
-                  {f}
-                </button>
-              ))}
+              {projectFilters.map((f) => {
+                const selectedFilter = filter === f
+                return (
+                  <motion.button
+                    key={f}
+                    role="tab"
+                    aria-selected={selectedFilter}
+                    onClick={() => setFilter(f)}
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative rounded-full border px-4 py-2 text-[13px] font-medium transition-all"
+                    style={{
+                      borderColor: selectedFilter ? 'var(--accent)' : 'var(--line)',
+                      color: selectedFilter ? 'var(--text)' : 'var(--muted)'
+                    }}
+                  >
+                    {selectedFilter && (
+                      <motion.span
+                        layoutId="project-filter-pill"
+                        className="absolute inset-0 rounded-full"
+                        style={{ background: 'rgba(139,124,255,0.14)' }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                      />
+                    )}
+                    <span className="relative">{f}</span>
+                  </motion.button>
+                )
+              })}
             </div>
           </Reveal>
         </div>
@@ -116,10 +128,11 @@ export default function Projects() {
                 key={p.id}
                 initial={{ opacity: 0, y: 28 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -6 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.55, delay: (idx % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="glow-card group flex flex-col overflow-hidden rounded-2xl"
+                className="glow-card hover-lift group flex flex-col overflow-hidden rounded-2xl"
                 style={{ background: 'var(--surface)', border: '1px solid var(--line)' }}
               >
                 <button type="button" onClick={() => setSelected(p)} className="block text-left" aria-label={`View details for ${p.title}`}>

@@ -1,4 +1,5 @@
 import { ArrowUp, Github, Linkedin, Mail } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { siteConfig, navLinks } from '../data/portfolio.js'
 
 export default function Footer() {
@@ -34,18 +35,33 @@ export default function Footer() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <a href={siteConfig.github} target="_blank" rel="noreferrer" aria-label="GitHub" className="btn-ghost flex h-9 w-9 items-center justify-center rounded-lg" style={{ color: 'var(--muted)' }}>
-            <Github size={16} />
-          </a>
-          <a href={siteConfig.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="btn-ghost flex h-9 w-9 items-center justify-center rounded-lg" style={{ color: 'var(--muted)' }}>
-            <Linkedin size={16} />
-          </a>
-          <a href={`mailto:${siteConfig.email}`} aria-label="Email" className="btn-ghost flex h-9 w-9 items-center justify-center rounded-lg" style={{ color: 'var(--muted)' }}>
-            <Mail size={16} />
-          </a>
-          <a href="#home" aria-label="Back to top" className="btn-primary ml-1 flex h-9 w-9 items-center justify-center rounded-lg">
+          {[
+            { href: siteConfig.github, label: 'GitHub', Icon: Github, external: true },
+            { href: siteConfig.linkedin, label: 'LinkedIn', Icon: Linkedin, external: true },
+            { href: `mailto:${siteConfig.email}`, label: 'Email', Icon: Mail, external: false }
+          ].map(({ href, label, Icon, external }) => (
+            <motion.a
+              key={label}
+              href={href}
+              {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+              aria-label={label}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.94 }}
+              className="btn-ghost flex h-9 w-9 items-center justify-center rounded-lg"
+              style={{ color: 'var(--muted)' }}
+            >
+              <Icon size={16} />
+            </motion.a>
+          ))}
+          <motion.a
+            href="#home"
+            aria-label="Back to top"
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.92 }}
+            className="btn-primary ml-1 flex h-9 w-9 items-center justify-center rounded-lg"
+          >
             <ArrowUp size={16} />
-          </a>
+          </motion.a>
         </div>
       </div>
     </footer>

@@ -1,4 +1,5 @@
 import { LayoutGrid, Server, Database, Wrench, Code2 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import SectionHeading from './SectionHeading.jsx'
 import Reveal from './Reveal.jsx'
 import { skillCategories } from '../data/portfolio.js'
@@ -11,21 +12,27 @@ const categoryIcons = {
   code: Code2
 }
 
-function SkillBadge({ name }) {
+function SkillBadge({ name, index = 0 }) {
   return (
-    <span
-      className="card-border inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium"
+    <motion.span
+      initial={{ opacity: 0, scale: 0.9, y: 8 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.35, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -2, scale: 1.05 }}
+      whileTap={{ scale: 0.96 }}
+      className="card-border inline-flex cursor-default items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium"
       style={{ background: 'var(--bg)', color: 'var(--text)' }}
     >
       <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--accent)' }} aria-hidden="true" />
       {name}
-    </span>
+    </motion.span>
   )
 }
 
 export default function Skills() {
   return (
-    <section id="skills" aria-label="Technical skills" className="scroll-mt-20 py-20 sm:py-28">
+    <section id="skills" aria-label="Technical skills" className="scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto px-5 sm:px-8" style={{ maxWidth: '1280px' }}>
         <div className="section-divider mb-14" aria-hidden="true" />
         <SectionHeading
@@ -39,8 +46,10 @@ export default function Skills() {
             const isWide = idx === 0 || idx === 3
             return (
               <Reveal key={cat.title} delay={(idx % 3) * 0.08} className={isWide ? 'sm:col-span-1 lg:col-span-1' : ''}>
-                <article
-                  className="card-border group h-full rounded-2xl p-6"
+                <motion.article
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="card-border hover-lift group h-full rounded-2xl p-6"
                   style={{ background: 'var(--surface)' }}
                 >
                   <div className="flex items-center gap-3">
@@ -60,11 +69,11 @@ export default function Skills() {
                     </div>
                   </div>
                   <div className="mt-5 flex flex-wrap gap-2">
-                    {cat.skills.map((s) => (
-                      <SkillBadge key={s.name} name={s.name} />
+                    {cat.skills.map((s, si) => (
+                      <SkillBadge key={s.name} name={s.name} index={si} />
                     ))}
                   </div>
-                </article>
+                </motion.article>
               </Reveal>
             )
           })}

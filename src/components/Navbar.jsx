@@ -19,14 +19,18 @@ export default function Navbar({ theme, onToggleTheme }) {
 
   useEffect(() => {
     const ids = navLinks.map((l) => l.href.slice(1))
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActive(e.target.id)
-        })
-      },
-      { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
-    )
+    const pickClosest = (entries) => {
+      const visible = entries.filter((e) => e.isIntersecting)
+      if (!visible.length) return
+      visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+      // Prefer the section whose heading sits closest below the header band.
+      const inBand = visible.find((e) => e.boundingClientRect.top >= -window.innerHeight * 0.4)
+      setActive((inBand || visible[0]).target.id)
+    }
+    const observer = new IntersectionObserver(pickClosest, {
+      rootMargin: '-35% 0px -55% 0px',
+      threshold: 0
+    })
     ids.forEach((id) => {
       const el = document.getElementById(id)
       if (el) observer.observe(el)
@@ -74,35 +78,49 @@ export default function Navbar({ theme, onToggleTheme }) {
             const isActive = active === id
             return (
               <li key={l.href}>
-                <a
+                <motion.a
                   href={l.href}
                   aria-current={isActive ? 'true' : undefined}
-                  className={`u-link rounded-md px-3 py-2 text-[13.5px] font-medium transition-colors ${isActive ? 'active' : ''}`}
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  className={`relative rounded-md px-3 py-2 text-[13.5px] font-medium transition-colors ${isActive ? 'active' : ''}`}
                   style={{ color: isActive ? 'var(--text)' : 'var(--muted)' }}
                 >
-                  {l.label}
-                </a>
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-pill"
+                      className="absolute inset-0 rounded-md"
+                      style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}
+                      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                    />
+                  )}
+                  <span className="u-link relative">{l.label}</span>
+                </motion.a>
               </li>
             )
           })}
         </ul>
 
         <div className="flex items-center gap-2">
-          <button
+          <motion.button
             type="button"
             onClick={onToggleTheme}
+            whileHover={{ scale: 1.06, rotate: 6 }}
+            whileTap={{ scale: 0.92 }}
             aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
             className="btn-ghost flex h-9 w-9 items-center justify-center rounded-lg"
             style={{ color: 'var(--muted)' }}
           >
             {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
-          <a
+          </motion.button>
+          <motion.a
             href="#contact"
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
             className="btn-primary hidden items-center gap-1.5 rounded-lg px-4 py-2 text-[13.5px] font-semibold sm:inline-flex"
           >
             Let&apos;s Talk <ArrowUpRight size={15} />
-          </a>
+          </motion.a>
           <button
             type="button"
             className="btn-ghost flex h-9 w-9 items-center justify-center rounded-lg lg:hidden"
@@ -127,11 +145,16 @@ export default function Navbar({ theme, onToggleTheme }) {
             style={{ background: 'var(--surface)', borderColor: 'var(--line)' }}
           >
             <ul className="space-y-1 px-5 py-4">
-              {navLinks.map((l) => {
+              {navLinks.map((l, i) => {
                 const id = l.href.slice(1)
                 const isActive = active === id
                 return (
-                  <li key={l.href}>
+                  <motion.li
+                    key={l.href}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.28, delay: 0.04 * i, ease: [0.22, 1, 0.36, 1] }}
+                  >
                     <a
                       href={l.href}
                       onClick={() => setOpen(false)}
@@ -144,7 +167,7 @@ export default function Navbar({ theme, onToggleTheme }) {
                       {l.label}
                       {isActive && <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--accent)' }} />}
                     </a>
-                  </li>
+                  </motion.li>
                 )
               })}
               <li className="pt-2">

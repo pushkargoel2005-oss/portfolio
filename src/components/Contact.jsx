@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Copy, Check, Github, Linkedin, Send, Loader2, Info } from 'lucide-react'
 import SectionHeading from './SectionHeading.jsx'
 import Reveal from './Reveal.jsx'
@@ -73,10 +74,12 @@ export default function Contact() {
   }
 
   const inputCls = (bad) =>
-    `w-full rounded-xl border bg-transparent px-4 py-3 text-[14.5px] placeholder:text-[var(--muted-2)] transition-colors`
+    `field-input w-full rounded-xl border bg-transparent px-4 py-3 text-[14.5px] placeholder:text-[var(--muted-2)] transition-colors`
+
+  const shake = (bad) => (bad ? { x: [0, -7, 7, -4, 4, 0] } : { x: 0 })
 
   return (
-    <section id="contact" aria-label="Contact" className="scroll-mt-20 py-20 sm:py-28">
+    <section id="contact" aria-label="Contact" className="scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto px-5 sm:px-8" style={{ maxWidth: '1280px' }}>
         <div className="section-divider mb-14" aria-hidden="true" />
         <SectionHeading
@@ -143,13 +146,15 @@ export default function Contact() {
                   <label htmlFor="c-name" className="mb-1.5 block text-[13px] font-semibold" style={{ color: 'var(--text)' }}>
                     Name
                   </label>
-                  <input
+                  <motion.input
                     id="c-name"
                     type="text"
                     autoComplete="name"
                     placeholder="Jane Doe"
                     value={form.name}
                     onChange={set('name')}
+                    animate={shake(errors.name)}
+                    transition={{ duration: 0.4 }}
                     aria-invalid={!!errors.name}
                     aria-describedby={errors.name ? 'c-name-err' : undefined}
                     className={inputCls()}
@@ -161,13 +166,15 @@ export default function Contact() {
                   <label htmlFor="c-email" className="mb-1.5 block text-[13px] font-semibold" style={{ color: 'var(--text)' }}>
                     Email
                   </label>
-                  <input
+                  <motion.input
                     id="c-email"
                     type="email"
                     autoComplete="email"
                     placeholder="jane@example.com"
                     value={form.email}
                     onChange={set('email')}
+                    animate={shake(errors.email)}
+                    transition={{ duration: 0.4 }}
                     aria-invalid={!!errors.email}
                     aria-describedby={errors.email ? 'c-email-err' : undefined}
                     className={inputCls()}
@@ -181,12 +188,14 @@ export default function Contact() {
                 <label htmlFor="c-subject" className="mb-1.5 block text-[13px] font-semibold" style={{ color: 'var(--text)' }}>
                   Subject
                 </label>
-                <input
+                <motion.input
                   id="c-subject"
                   type="text"
                   placeholder="Project inquiry, opportunity, hello…"
                   value={form.subject}
                   onChange={set('subject')}
+                  animate={shake(errors.subject)}
+                  transition={{ duration: 0.4 }}
                   aria-invalid={!!errors.subject}
                   aria-describedby={errors.subject ? 'c-subject-err' : undefined}
                   className={inputCls()}
@@ -199,12 +208,14 @@ export default function Contact() {
                 <label htmlFor="c-message" className="mb-1.5 block text-[13px] font-semibold" style={{ color: 'var(--text)' }}>
                   Message
                 </label>
-                <textarea
+                <motion.textarea
                   id="c-message"
                   rows={5}
                   placeholder="Tell me about your idea, timeline, and what success looks like…"
                   value={form.message}
                   onChange={set('message')}
+                  animate={shake(errors.message)}
+                  transition={{ duration: 0.4 }}
                   aria-invalid={!!errors.message}
                   aria-describedby={errors.message ? 'c-message-err' : undefined}
                   className={`${inputCls()} resize-y`}
@@ -213,9 +224,11 @@ export default function Contact() {
                 {errors.message && <p id="c-message-err" role="alert" className="mt-1.5 text-[12.5px] text-red-400">{errors.message}</p>}
               </div>
 
-              <button
+              <motion.button
                 type="submit"
                 disabled={status === 'sending'}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
                 className="btn-primary mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[14.5px] font-semibold disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {status === 'sending' ? (
@@ -227,21 +240,27 @@ export default function Contact() {
                     <Send size={16} /> Send Message
                   </>
                 )}
-              </button>
+              </motion.button>
 
-              {note && (
-                <p
-                  role={status === 'error' ? 'alert' : 'status'}
-                  className="mt-4 rounded-xl border p-3.5 text-[13.5px] leading-relaxed"
-                  style={{
-                    borderColor: status === 'error' ? 'rgba(248,113,113,0.4)' : 'rgba(52,211,153,0.35)',
-                    background: status === 'error' ? 'rgba(248,113,113,0.08)' : 'rgba(52,211,153,0.08)',
-                    color: 'var(--text)'
-                  }}
-                >
-                  {note}
-                </p>
-              )}
+              <AnimatePresence>
+                {note && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    role={status === 'error' ? 'alert' : 'status'}
+                    className="mt-4 rounded-xl border p-3.5 text-[13.5px] leading-relaxed"
+                    style={{
+                      borderColor: status === 'error' ? 'rgba(248,113,113,0.4)' : 'rgba(52,211,153,0.35)',
+                      background: status === 'error' ? 'rgba(248,113,113,0.08)' : 'rgba(52,211,153,0.08)',
+                      color: 'var(--text)'
+                    }}
+                  >
+                    {note}
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </form>
           </Reveal>
         </div>

@@ -1,4 +1,5 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 import { Github, Linkedin, Mail, ArrowDown, FileText, ChevronDown } from 'lucide-react'
 import { siteConfig } from '../data/portfolio.js'
 
@@ -7,12 +8,46 @@ const fadeUp = {
   show: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.08 * i, ease: [0.22, 1, 0.36, 1] } })
 }
 
+function RoleRotator({ roles }) {
+  const reduce = useReducedMotion()
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    if (reduce || roles.length < 2) return
+    const t = setInterval(() => setIndex((i) => (i + 1) % roles.length), 2600)
+    return () => clearInterval(t)
+  }, [reduce, roles.length])
+  if (reduce || roles.length < 2) {
+    return <span>{roles.join('  ·  ')}</span>
+  }
+  return (
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={roles[index]}
+          initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="text-gradient font-semibold"
+        >
+          {roles[index]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  )
+}
+
 function HeroVisual() {
   const reduce = useReducedMotion()
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[440px] select-none" aria-hidden="true">
       {/* ambient orbs */}
-      <div className="absolute inset-0 overflow-hidden rounded-[28px] border" style={{ background: 'var(--surface)', borderColor: 'var(--line)' }}>
+      <motion.div
+        className="absolute inset-0 overflow-hidden rounded-[28px] border"
+        style={{ background: 'var(--surface)', borderColor: 'var(--line)' }}
+        whileHover={reduce ? {} : { scale: 1.01 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="bg-grid bg-grid-fade absolute inset-0 opacity-60" />
         {!reduce && (
           <>
@@ -51,6 +86,7 @@ function HeroVisual() {
               <span style={{ color: 'var(--text)' }}>{'}'}</span>
               {'\n'}
               <span style={{ color: '#8b7cff' }}>export default</span> <span style={{ color: 'var(--text)' }}>profile</span>
+              {!reduce && <span className="animate-blink ml-1 inline-block h-[13px] w-[7px] translate-y-[2px] rounded-[1px]" style={{ background: '#8b7cff' }} />}
             </code>
           </pre>
         </div>
@@ -76,21 +112,49 @@ function HeroVisual() {
             </motion.div>
           </>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }
 
 export default function Hero() {
   const reduce = useReducedMotion()
+  const ref = useRef(null)
+  const [spot, setSpot] = useState({ x: 50, y: 30 })
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const visualY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 70])
+  const glowOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.2])
+
+  const onMouseMove = (e) => {
+    if (reduce || !ref.current) return
+    const r = ref.current.getBoundingClientRect()
+    setSpot({
+      x: ((e.clientX - r.left) / r.width) * 100,
+      y: ((e.clientY - r.top) / r.height) * 100
+    })
+  }
+
+  const socials = [
+    { href: siteConfig.github, label: 'GitHub profile', Icon: Github, external: true },
+    { href: siteConfig.linkedin, label: 'LinkedIn profile', Icon: Linkedin, external: true },
+    { href: `mailto:${siteConfig.email}`, label: 'Send email', Icon: Mail, external: false }
+  ]
+
   return (
-    <section id="home" aria-label="Introduction" className="relative overflow-hidden pb-16 pt-28 sm:pt-36">
+    <section ref={ref} onMouseMove={onMouseMove} id="home" aria-label="Introduction" className="relative overflow-hidden pb-16 pt-28 sm:pt-36">
       <div className="bg-grid bg-grid-fade pointer-events-none absolute inset-0 opacity-70" aria-hidden="true" />
-      <div
+      <motion.div
         className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full blur-3xl"
-        style={{ background: 'var(--glow)' }}
+        style={{ background: 'var(--glow)', opacity: glowOpacity }}
         aria-hidden="true"
       />
+      {!reduce && (
+        <div
+          className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+          style={{ background: `radial-gradient(480px circle at ${spot.x}% ${spot.y}%, rgba(139,124,255,0.12), transparent 65%)` }}
+          aria-hidden="true"
+        />
+      )}
 
       <div className="relative mx-auto grid max-w-content items-center gap-12 px-5 sm:px-8 lg:grid-cols-[1.05fr_0.95fr]" style={{ maxWidth: '1280px' }}>
         <div>
@@ -121,24 +185,33 @@ export default function Hero() {
             <p className="mt-5 max-w-xl text-[15.5px] leading-relaxed sm:text-lg" style={{ color: 'var(--muted)' }}>
               {siteConfig.heroDescription}
             </p>
-            <p className="mt-3 font-mono text-[12.5px]" style={{ color: 'var(--muted-2)' }}>
-              {siteConfig.roles.join('  ·  ')} — {siteConfig.location}
+            <p className="mt-3 flex flex-wrap items-center gap-x-2 font-mono text-[12.5px]" style={{ color: 'var(--muted-2)' }}>
+              <RoleRotator roles={siteConfig.roles} />
+              <span aria-hidden="true">—</span>
+              <span>{siteConfig.location}</span>
             </p>
           </motion.div>
 
           <motion.div variants={fadeUp} initial="hidden" animate="show" custom={3} className="mt-8 flex flex-wrap items-center gap-3">
-            <a href="#projects" className="btn-primary inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-[14.5px] font-semibold">
+            <motion.a
+              href="#projects"
+              whileHover={reduce ? {} : { y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              className="btn-primary inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-[14.5px] font-semibold"
+            >
               Explore My Work <ArrowDown size={16} />
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href={siteConfig.resumeUrl}
               target={siteConfig.resumeUrl.startsWith('/') ? '_self' : '_blank'}
               rel="noreferrer"
+              whileHover={reduce ? {} : { y: -2 }}
+              whileTap={{ scale: 0.97 }}
               className="btn-ghost inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-[14.5px] font-semibold"
               style={{ color: 'var(--text)' }}
             >
               <FileText size={16} /> Download Resume
-            </a>
+            </motion.a>
           </motion.div>
 
           <motion.div variants={fadeUp} initial="hidden" animate="show" custom={4} className="mt-8 flex items-center gap-3">
@@ -146,19 +219,27 @@ export default function Hero() {
               Connect
             </span>
             <span className="h-px w-8" style={{ background: 'var(--line-strong)' }} />
-            <a href={siteConfig.github} target="_blank" rel="noreferrer" aria-label="GitHub profile" className="btn-ghost flex h-10 w-10 items-center justify-center rounded-lg" style={{ color: 'var(--muted)' }}>
-              <Github size={18} />
-            </a>
-            <a href={siteConfig.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn profile" className="btn-ghost flex h-10 w-10 items-center justify-center rounded-lg" style={{ color: 'var(--muted)' }}>
-              <Linkedin size={18} />
-            </a>
-            <a href={`mailto:${siteConfig.email}`} aria-label="Send email" className="btn-ghost flex h-10 w-10 items-center justify-center rounded-lg" style={{ color: 'var(--muted)' }}>
-              <Mail size={18} />
-            </a>
+            {socials.map(({ href, label, Icon, external }, i) => (
+              <motion.a
+                key={label}
+                href={href}
+                {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+                aria-label={label}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + i * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={reduce ? {} : { y: -3, scale: 1.05 }}
+                whileTap={{ scale: 0.94 }}
+                className="btn-ghost flex h-10 w-10 items-center justify-center rounded-lg"
+                style={{ color: 'var(--muted)' }}
+              >
+                <Icon size={18} />
+              </motion.a>
+            ))}
           </motion.div>
         </div>
 
-        <motion.div variants={fadeUp} initial="hidden" animate="show" custom={2}>
+        <motion.div variants={fadeUp} initial="hidden" animate="show" custom={2} style={reduce ? {} : { y: visualY }}>
           <HeroVisual />
         </motion.div>
       </div>

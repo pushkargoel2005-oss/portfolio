@@ -1,11 +1,12 @@
 import { Github, ArrowUpRight, BookMarked } from 'lucide-react'
+import { motion } from 'framer-motion'
 import SectionHeading from './SectionHeading.jsx'
 import Reveal from './Reveal.jsx'
 import { siteConfig, repoHighlights } from '../data/portfolio.js'
 
 export default function GitHubActivity() {
   return (
-    <section id="github" aria-label="GitHub and activity" className="scroll-mt-20 py-20 sm:py-28">
+    <section id="github" aria-label="GitHub and activity" className="scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto px-5 sm:px-8" style={{ maxWidth: '1280px' }}>
         <div className="section-divider mb-14" aria-hidden="true" />
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
@@ -16,26 +17,30 @@ export default function GitHubActivity() {
               description="A few repositories I'm working on."
             />
             <Reveal delay={0.1} className="mt-6">
-              <a
+              <motion.a
                 href={siteConfig.github}
                 target="_blank"
                 rel="noreferrer"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.97 }}
                 className="btn-ghost inline-flex items-center gap-2.5 rounded-xl px-5 py-3.5 text-[14.5px] font-semibold"
                 style={{ color: 'var(--text)' }}
               >
                 <Github size={18} /> @{siteConfig.githubUsername} <ArrowUpRight size={15} />
-              </a>
+              </motion.a>
             </Reveal>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
             {repoHighlights.map((r, i) => (
               <Reveal key={r.name} delay={i * 0.07}>
-                <a
+                <motion.a
                   href={r.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="card-border group flex h-full flex-col rounded-2xl p-5"
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="card-border hover-lift group flex h-full flex-col rounded-2xl p-5"
                   style={{ background: 'var(--surface)' }}
                   aria-label={`${r.name} repository`}
                 >
@@ -63,7 +68,7 @@ export default function GitHubActivity() {
                       ))}
                     </span>
                   </div>
-                </a>
+                </motion.a>
               </Reveal>
             ))}
           </div>
