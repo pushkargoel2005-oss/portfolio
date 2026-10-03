@@ -18,7 +18,7 @@ export const siteConfig = {
   heroHeadlineB: 'I build for the web.',
   heroDescription:
     'I’m a developer focused on building clean, responsive, and user-friendly digital experiences — from thoughtful interfaces in React to reliable APIs and databases behind them.',
-  email: 'pushakrgoel2005@example.com', // TODO: your real email
+  email: 'pushkargoel2005@gmail.com',
   github: 'https://github.com/pushkargoel2005-oss', // TODO: your GitHub URL
   githubUsername: 'pushkargoel2005-oss',
   linkedin: 'https://linkedin.com/in/pushkar-goel-198427422', // TODO: your LinkedIn URL
