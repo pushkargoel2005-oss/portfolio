@@ -39,6 +39,34 @@ export default function Contact() {
       setStatus('idle')
       return
     }
+    // Direct send via Web3Forms — delivers to your inbox, no redirect
+    if (siteConfig.web3formsKey) {
+      try {
+        setStatus('sending')
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: siteConfig.web3formsKey,
+            name: form.name,
+            email: form.email,
+            subject: form.subject || `Portfolio message from ${form.name}`,
+            message: form.message,
+            from_name: `${form.name} (portfolio contact form)`,
+            reply_to: form.email
+          })
+        })
+        const data = await res.json()
+        if (!data.success) throw new Error(data.message || 'Request failed')
+        setStatus('success')
+        setNote('Message sent — thank you. I’ll get back to you soon.')
+        setForm(initial)
+      } catch {
+        setStatus('error')
+        setNote('Sending failed. Please try the Write an email button instead.')
+      }
+      return
+    }
     // No endpoint configured → open Gmail compose addressed to you
     if (!siteConfig.formEndpoint) {
       const subject = form.subject || `Hello from ${form.name}`
@@ -133,7 +161,7 @@ export default function Contact() {
               </a>
             </div>
 
-            {!siteConfig.formEndpoint && (
+            {!siteConfig.formEndpoint && !siteConfig.web3formsKey && (
               <p className="flex gap-2.5 rounded-xl border border-dashed p-4 text-[13px] leading-relaxed" style={{ borderColor: 'var(--line)', color: 'var(--muted-2)', background: 'var(--surface)' }}>
                 <Info size={15} className="mt-0.5 shrink-0" />
                 Direct sending is off — the form opens Gmail compose.

@@ -25,8 +25,11 @@ export const siteConfig = {
   resumeUrl: '/resume.pdf', // TODO: place your PDF at public/resume.pdf or paste a Drive URL
   availability: true,
   availabilityText: 'Available for opportunities',
-  // Optional: paste a Formspree / Web3Forms / custom endpoint to activate the form.
-  // Leave empty to use the mailto fallback (no credentials needed).
+  // Direct sending (no redirect): paste your free Web3Forms access key here.
+  // Get one in ~1 min at https://web3forms.com (enter your Gmail, verify, copy key).
+  // Leave empty to fall back to Gmail compose.
+  web3formsKey: '',
+  // Optional: generic custom endpoint (Formspree / Web3Forms / custom API).
   // Example: 'https://formspree.io/f/xxxxxxx'
   formEndpoint: '',
   footerNote: 'Designed & built with care.'
