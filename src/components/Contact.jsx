@@ -7,6 +7,9 @@ import { siteConfig } from '../data/portfolio.js'
 
 const initial = { name: '', email: '', subject: '', message: '' }
 
+const gmailCompose = (to, subject, body) =>
+  `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+
 export default function Contact() {
   const [form, setForm] = useState(initial)
   const [errors, setErrors] = useState({})
@@ -36,13 +39,13 @@ export default function Contact() {
       setStatus('idle')
       return
     }
-    // No endpoint configured → functional mailto fallback
+    // No endpoint configured → open Gmail compose addressed to you
     if (!siteConfig.formEndpoint) {
-      const subject = encodeURIComponent(form.subject || `Hello from ${form.name}`)
-      const body = encodeURIComponent(`Hi,\n\n${form.message}\n\n— ${form.name} (${form.email})`)
-      window.location.href = `mailto:${siteConfig.email}?subject=${subject}&body=${body}`
+      const subject = form.subject || `Hello from ${form.name}`
+      const body = `Hi,\n\n${form.message}\n\n— ${form.name} (${form.email})`
+      window.open(gmailCompose(siteConfig.email, subject, body), '_blank', 'noopener')
       setStatus('success')
-      setNote('Your email app was opened with this message pre-filled.')
+      setNote('Gmail compose was opened with your message pre-filled — just hit Send there.')
       setForm(initial)
       return
     }
@@ -120,7 +123,12 @@ export default function Contact() {
                   <Linkedin size={17} /> LinkedIn
                 </a>
               </div>
-              <a href={`mailto:${siteConfig.email}`} className="btn-primary mt-2.5 flex h-11 items-center justify-center gap-2 rounded-xl text-[14px] font-semibold">
+              <a
+                href={gmailCompose(siteConfig.email, 'Hello', '')}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-primary mt-2.5 flex h-11 items-center justify-center gap-2 rounded-xl text-[14px] font-semibold"
+              >
                 <Mail size={16} /> Write an email
               </a>
             </div>
@@ -128,7 +136,7 @@ export default function Contact() {
             {!siteConfig.formEndpoint && (
               <p className="flex gap-2.5 rounded-xl border border-dashed p-4 text-[13px] leading-relaxed" style={{ borderColor: 'var(--line)', color: 'var(--muted-2)', background: 'var(--surface)' }}>
                 <Info size={15} className="mt-0.5 shrink-0" />
-                Direct sending is off — the form opens your email app.
+                Direct sending is off — the form opens Gmail compose.
               </p>
             )}
           </Reveal>
