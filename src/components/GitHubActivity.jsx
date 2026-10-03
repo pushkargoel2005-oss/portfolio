@@ -42,7 +42,7 @@ export default function GitHubActivity() {
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   className="card-border hover-lift group flex h-full flex-col rounded-2xl p-5"
                   style={{ background: 'var(--surface)' }}
-                  aria-label={`${r.name} repository`}
+                  aria-label={`${r.name} — open live demo`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--muted)' }}>

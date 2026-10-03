@@ -176,6 +176,6 @@ export const repoHighlights = [
     description: 'Workspace for creating, organising, and reusing AI prompts.',
     language: 'JavaScript',
     tech: ['React', 'Node.js'],
-    url: 'https://github.com/pushkargoel2005-oss'
+    url: 'https://promptforge-ai-bice.vercel.app/'
   }
 ]
