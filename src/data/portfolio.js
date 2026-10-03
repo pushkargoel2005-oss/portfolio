@@ -28,7 +28,7 @@ export const siteConfig = {
   // Direct sending (no redirect): paste your free Web3Forms access key here.
   // Get one in ~1 min at https://web3forms.com (enter your Gmail, verify, copy key).
   // Leave empty to fall back to Gmail compose.
-  web3formsKey: '',
+  web3formsKey: '4f72502d-fc9f-414e-8fe1-21c7132992f2',
   // Optional: generic custom endpoint (Formspree / Web3Forms / custom API).
   // Example: 'https://formspree.io/f/xxxxxxx'
   formEndpoint: '',
