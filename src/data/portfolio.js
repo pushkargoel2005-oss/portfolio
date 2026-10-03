@@ -139,7 +139,7 @@ export const projects = [
       'Clean, keyboard-friendly editor UI'
     ],
     github: '#', // TODO: your repo URL
-    live: '#', // TODO: your live demo URL
+    live: 'https://promptforge-ai-bice.vercel.app/',
     accent: 'violet',
     pattern: 'orbs'
   }
